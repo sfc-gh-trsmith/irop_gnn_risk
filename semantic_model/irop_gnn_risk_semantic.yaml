@@ -1,0 +1,297 @@
+name: IROP_GNN_RISK_SEMANTIC_VIEW
+description: >
+  Semantic model for IROP (Irregular Operations) risk analytics supporting natural language
+  queries about flight risk scores, network criticality, passenger misconnections, and
+  revenue at risk across the Delta network.
+
+tables:
+  - name: FLIGHT_RISK
+    description: >
+      Primary fact table containing flight-level risk scores, network criticality metrics,
+      component breakdowns, and downstream impact assessments.
+    base_table:
+      database: IROP_GNN_RISK
+      schema: IROP_MART
+      table: FLIGHT_RISK
+
+    dimensions:
+      - name: flight_key
+        description: Unique identifier for each flight instance
+        expr: FLIGHT_KEY
+        data_type: VARCHAR
+        unique: true
+        
+      - name: flight_number
+        description: Flight number (e.g., DL1234)
+        expr: FLIGHT_NUMBER
+        data_type: VARCHAR
+        sample_values:
+          - DL1234
+          - DL5678
+          
+      - name: departure_station
+        description: Three-letter IATA code for departure airport
+        expr: DEPARTURE_STATION
+        data_type: VARCHAR
+        sample_values:
+          - ATL
+          - JFK
+          - DTW
+          - LAX
+          
+      - name: arrival_station
+        description: Three-letter IATA code for arrival airport
+        expr: ARRIVAL_STATION
+        data_type: VARCHAR
+        sample_values:
+          - LHR
+          - CDG
+          - MCO
+          - SEA
+          
+      - name: flight_date
+        description: Date of flight operation
+        expr: FLIGHT_DATE
+        data_type: DATE
+        
+      - name: hub_flag
+        description: Whether departure station is a hub (ATL, JFK, DTW, LAX)
+        expr: HUB_FLAG
+        data_type: BOOLEAN
+        
+      - name: route_type
+        description: Route classification - domestic, domestic-international, or international-domestic
+        expr: ROUTE_TYPE
+        data_type: VARCHAR
+        sample_values:
+          - DOM-DOM
+          - DOM-INTL
+          - INTL-DOM
+          
+      - name: fleet_type
+        description: Aircraft fleet type
+        expr: FLEET_TYPE
+        data_type: VARCHAR
+        sample_values:
+          - B737-900
+          - A330-300
+          - A350-900
+          
+      - name: risk_band
+        description: Risk score category - Low (0-39), Medium (40-69), High (70-100)
+        expr: RISK_BAND
+        data_type: VARCHAR
+        sample_values:
+          - Low
+          - Medium
+          - High
+          
+      - name: network_impact_band
+        description: Network impact category - Low, Medium, High based on downstream cascade potential
+        expr: NETWORK_IMPACT_BAND
+        data_type: VARCHAR
+        sample_values:
+          - Low
+          - Medium
+          - High
+          
+      - name: fdp_timeout_risk_flag
+        description: Whether flight has elevated crew FDP timeout risk
+        expr: FDP_TIMEOUT_RISK_FLAG
+        data_type: BOOLEAN
+        
+      - name: curfew_risk_flag
+        description: Whether flight risks violating destination airport curfew
+        expr: CURFEW_RISK_FLAG
+        data_type: BOOLEAN
+        
+      - name: mel_risk_flag
+        description: Whether aircraft has MEL item affecting operations
+        expr: MEL_RISK_FLAG
+        data_type: BOOLEAN
+        
+      - name: turn_risk_flag
+        description: Whether flight has elevated risk of turn failure (delayed departure)
+        expr: TURN_RISK_FLAG
+        data_type: BOOLEAN
+
+    time_dimensions:
+      - name: snapshot_timestamp
+        description: Timestamp when risk scores were calculated
+        expr: SNAPSHOT_TS
+        data_type: TIMESTAMP_NTZ
+        
+      - name: scheduled_departure
+        description: Scheduled departure time in UTC
+        expr: SCHED_DEP_UTC
+        data_type: TIMESTAMP_NTZ
+        
+      - name: scheduled_arrival
+        description: Scheduled arrival time in UTC
+        expr: SCHED_ARR_UTC
+        data_type: TIMESTAMP_NTZ
+
+    measures:
+      - name: total_flights
+        description: Count of flights
+        expr: COUNT(*)
+        data_type: NUMBER
+        default_aggregation: count
+        
+      - name: total_misconnect_pax
+        description: Total passengers at risk of missing connections
+        expr: SUM(MISCONNECT_PAX_AT_RISK)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: total_revenue_at_risk_usd
+        description: Total revenue in US dollars at risk due to disruptions
+        expr: SUM(REVENUE_AT_RISK_USD)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: avg_flight_risk_score
+        description: Average flight risk score (0-100 scale)
+        expr: AVG(FLIGHT_RISK_SCORE_0_100)
+        data_type: FLOAT
+        default_aggregation: avg
+        
+      - name: avg_network_impact_score
+        description: Average network impact score from GNN model
+        expr: AVG(NETWORK_IMPACT_SCORE_0_100)
+        data_type: FLOAT
+        default_aggregation: avg
+        
+      - name: num_high_risk_flights
+        description: Count of flights with risk score >= 70
+        expr: COUNT_IF(FLIGHT_RISK_SCORE_0_100 >= 70)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: num_medium_risk_flights
+        description: Count of flights with risk score between 40 and 69
+        expr: COUNT_IF(FLIGHT_RISK_SCORE_0_100 >= 40 AND FLIGHT_RISK_SCORE_0_100 < 70)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: num_low_risk_flights
+        description: Count of flights with risk score < 40
+        expr: COUNT_IF(FLIGHT_RISK_SCORE_0_100 < 40)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: total_downline_legs_affected
+        description: Total count of downstream legs affected by delays/issues
+        expr: SUM(DOWNLINE_LEGS_AFFECTED_COUNT)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: avg_gnn_criticality
+        description: Average GNN network criticality score
+        expr: AVG(GNN_NETWORK_CRITICALITY)
+        data_type: FLOAT
+        default_aggregation: avg
+        
+      - name: flights_with_fdp_risk
+        description: Count of flights with crew FDP timeout risk
+        expr: COUNT_IF(FDP_TIMEOUT_RISK_FLAG = TRUE)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: flights_with_curfew_risk
+        description: Count of flights with curfew violation risk
+        expr: COUNT_IF(CURFEW_RISK_FLAG = TRUE)
+        data_type: NUMBER
+        default_aggregation: sum
+        
+      - name: flights_with_mel_risk
+        description: Count of flights with MEL-related risk
+        expr: COUNT_IF(MEL_RISK_FLAG = TRUE)
+        data_type: NUMBER
+        default_aggregation: sum
+
+verified_queries:
+  - name: high_risk_international_flights
+    question: "For tonight's JFK-LHR and ATL-CDG departure banks, show me the total misconnect passengers and revenue at risk, broken down by origin airport and highlight how many flights are High Risk"
+    sql: |
+      SELECT
+        departure_station,
+        COUNT(*) AS num_flights,
+        SUM(misconnect_pax_at_risk) AS total_misconnect_pax,
+        SUM(revenue_at_risk_usd) AS total_revenue_at_risk_usd,
+        COUNT_IF(flight_risk_score_0_100 >= 70) AS num_high_risk_flights
+      FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+      WHERE flight_date = CURRENT_DATE
+        AND arrival_station IN ('LHR', 'CDG')
+        AND departure_station IN ('JFK', 'ATL')
+      GROUP BY departure_station
+      ORDER BY total_revenue_at_risk_usd DESC
+    verified_by: trsmith
+    verified_at: "2026-02-19"
+    
+  - name: hub_risk_summary
+    question: "What is the total number of high risk flights at each hub today?"
+    sql: |
+      SELECT
+        departure_station,
+        COUNT(*) AS total_flights,
+        COUNT_IF(flight_risk_score_0_100 >= 70) AS high_risk_flights,
+        COUNT_IF(flight_risk_score_0_100 >= 40 AND flight_risk_score_0_100 < 70) AS medium_risk_flights,
+        COUNT_IF(flight_risk_score_0_100 < 40) AS low_risk_flights
+      FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+      WHERE flight_date = CURRENT_DATE
+        AND hub_flag = TRUE
+      GROUP BY departure_station
+      ORDER BY high_risk_flights DESC
+    verified_by: trsmith
+    verified_at: "2026-02-19"
+    
+  - name: crew_timeout_risk_flights
+    question: "Which flights have crew timeout risk and what is their impact?"
+    sql: |
+      SELECT
+        flight_key,
+        flight_number,
+        departure_station,
+        arrival_station,
+        flight_risk_score_0_100,
+        misconnect_pax_at_risk,
+        revenue_at_risk_usd
+      FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+      WHERE fdp_timeout_risk_flag = TRUE
+        AND flight_date = CURRENT_DATE
+      ORDER BY flight_risk_score_0_100 DESC
+    verified_by: trsmith
+    verified_at: "2026-02-19"
+    
+  - name: network_criticality_top10
+    question: "What are the top 10 most network-critical flights today?"
+    sql: |
+      SELECT
+        flight_key,
+        flight_number,
+        departure_station,
+        arrival_station,
+        gnn_network_criticality,
+        network_impact_score_0_100,
+        downline_legs_affected_count,
+        misconnect_pax_at_risk,
+        revenue_at_risk_usd
+      FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+      WHERE flight_date = CURRENT_DATE
+      ORDER BY gnn_network_criticality DESC
+      LIMIT 10
+    verified_by: trsmith
+    verified_at: "2026-02-19"
+    
+  - name: total_revenue_at_risk
+    question: "What is the total revenue at risk across the network today?"
+    sql: |
+      SELECT
+        SUM(revenue_at_risk_usd) AS total_revenue_at_risk,
+        SUM(misconnect_pax_at_risk) AS total_misconnect_pax,
+        COUNT_IF(flight_risk_score_0_100 >= 70) AS high_risk_flight_count
+      FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+      WHERE flight_date = CURRENT_DATE
+    verified_by: trsmith
+    verified_at: "2026-02-19"

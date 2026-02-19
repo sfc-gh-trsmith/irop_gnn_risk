@@ -1,0 +1,169 @@
+doc_id,doc_type,station_code,fleet_type,title,content,effective_date
+86F2CE0C,FAR_117,,,FAR Part 117 - Flight Duty Period Limitations,"FAR Part 117 Flight Duty Period (FDP) Limitations and Rest Requirements
+
+FLIGHT DUTY PERIOD LIMITS:
+- Unaugmented crew, 2 flight segments: Maximum 9-10 hours depending on start time
+- Unaugmented crew, 3+ segments: Maximum 8-9 hours depending on start time
+- Augmented crew (Class 1 rest): Up to 17 hours FDP allowed
+- Augmented crew (Class 2 rest): Up to 15 hours FDP allowed
+- Augmented crew (Class 3 rest): Up to 13 hours FDP allowed
+
+TIME ZONE CONSIDERATIONS:
+- Crossing 4+ time zones reduces FDP limits by 30 minutes
+- Crossing 6+ time zones reduces FDP limits by 1 hour
+- Acclimation period of 48 hours required after crossing 4+ zones
+
+REST REQUIREMENTS:
+- Minimum 10 consecutive hours rest opportunity
+- Rest must include 8 hours uninterrupted sleep opportunity
+- 30 consecutive hours free from duty required per 168-hour period
+- 56 hours rest per 168-hour period for unaugmented operations
+
+FDP EXTENSIONS:
+- Commander may extend FDP by up to 2 hours if unforeseen circumstances
+- Extensions require immediate post-flight rest period extension
+- Maximum of 2 extensions per 168-hour period
+- Extension must be logged with specific justification
+
+CUMULATIVE FLIGHT TIME LIMITS:
+- 100 hours in any 672 consecutive hours
+- 1000 hours in any 365-day period
+- Flight time includes taxi-out to parking at destination",2024-01-01
+801C9BEC,MEL_MANUAL,,,MEL/CDL Operations Manual - APU and Ground Operations,"MINIMUM EQUIPMENT LIST (MEL) OPERATIONS GUIDANCE
+
+APU INOPERATIVE PROCEDURES:
+- APU MEL Item 49-1: APU may be inoperative provided:
+  * External ground power available at origin AND destination
+  * Alternate airport has ground power capability
+  * Operations not conducted in known or forecast icing conditions
+  * Engine start capability via ground cart or cross-bleed confirmed
+
+- APU DEFERRAL RESTRICTIONS:
+  * Maximum 10 days deferral for Category B items
+  * Operations restricted to stations with ground support
+  * Notification required to destination station 60 minutes prior
+  * Ground start cart must be confirmed available before dispatch
+
+GROUND START PROCEDURES WITHOUT APU:
+1. Confirm ground power unit (GPU) connected and stable
+2. Verify external air start unit availability
+3. Complete cross-bleed start checklist if no air cart
+4. Minimum 90-second stabilization after engine start
+5. Do not attempt cross-bleed start if OAT below -10C
+
+STATION LIMITATIONS FOR APU MEL:
+- Non-hub outstations may have limited ground support
+- Verify ground cart availability via station ops prior to departure
+- International destinations require 24-hour advance notification
+- Some airports restrict ground equipment during noise curfew hours
+
+CDL ITEMS AFFECTING GROUND OPERATIONS:
+- Missing ground service door requires maintenance assist
+- Cargo door seal issues may require dry operation only
+- Gear doors missing require speed restrictions",2024-01-01
+42181FE6,CURFEW_RULES,LHR,,London Heathrow (LHR) Curfew and Slot Regulations,"LONDON HEATHROW (LHR) NOISE CURFEW AND SLOT REQUIREMENTS
+
+CURFEW WINDOW:
+- Night quota period: 23:30 to 06:00 local time
+- Scheduled operations prohibited during curfew
+- Emergency and humanitarian flights may request exemption
+
+SLOT REQUIREMENTS:
+- LHR is fully slot coordinated (Level 3)
+- All flights require confirmed slot allocation
+- Slot tolerance: +/- 15 minutes from scheduled time
+- Slot misuse may result in sanctions and future slot loss
+
+LATE RUNNING PROCEDURES:
+- If delay causes arrival after 23:30, contact ATC immediately
+- Diversions to LGW, STN, or BHX may be required
+- Late arrival fees apply: £10,000 per occurrence minimum
+- Repeat violations subject to slot withdrawal proceedings
+
+NOISE QUOTA SYSTEM:
+- Each aircraft type assigned QC (Quota Count) value
+- Night movements limited by total QC budget
+- A350/787 have favorable QC ratings (QC/0.5)
+- A330/767 require higher quota allocation (QC/2)
+
+EXEMPTIONS AND WAIVERS:
+- Weather diversions: 30-minute grace period applies
+- Technical emergencies: Exemption on case-by-case basis
+- Scheduled late departures: Must have ACL approval
+- Charter and cargo: Generally no curfew exemptions
+
+BUFFER RECOMMENDATIONS:
+- Schedule arrivals no later than 22:30 for curfew protection
+- Allow 60-minute buffer for transatlantic arrivals
+- Winter operations: Add 15-minute additional buffer",2024-01-01
+32FF9933,CURFEW_RULES,CDG,,Paris Charles de Gaulle (CDG) Curfew and Operations,"PARIS CHARLES DE GAULLE (CDG) OPERATIONAL RESTRICTIONS
+
+CURFEW PERIODS:
+- Soft curfew: 22:00 to 06:00 (noise surcharges apply)
+- Voluntary quiet hours: 00:00 to 05:00
+- Chapter 2 aircraft prohibited 22:00-06:00
+
+RUNWAY PREFERENCES:
+- Night operations: Preferred runways 26L/26R for departures
+- Noise sensitive areas: Avoid overflights of Roissy-en-France
+- Weather permitting: Use runway configurations minimizing community impact
+
+LATE ARRIVAL HANDLING:
+- Arrivals after 23:30: Increased approach charges apply
+- Diversions available to ORY (Orly) with restrictions
+- Ground handling limited after 01:00
+
+SLOT COORDINATION:
+- CDG is Level 3 coordinated
+- Historic slot rights preserved with 80% utilization
+- New entrant slots available through COHOR
+
+CONNECTING PASSENGER CONSIDERATIONS:
+- MCT for connections: 90 minutes DOM-INTL
+- Terminal transfers may require 120 minutes
+- Immigration processing times variable: allow 45-60 minutes",2024-01-01
+DB3596F4,IROP_PLAYBOOK,,,IROP Recovery Playbook - Tail Swap and Pre-Cancel Guidelines,"IRREGULAR OPERATIONS RECOVERY PLAYBOOK
+
+TAIL SWAP DECISION CRITERIA:
+Priority Order for Tail Swaps:
+1. Eliminate crew legality violations (FDP timeout prevention)
+2. Preserve international/long-haul departures
+3. Minimize total passenger misconnections
+4. Protect high-value customer segments (Diamond, Platinum)
+5. Reduce total delay minutes across network
+
+Tail Swap Approval Levels:
+- Same hub, same fleet type: IOC Flight Manager authority
+- Cross-hub within region: Duty Manager approval required
+- Cross-fleet or ETOPS changes: VP Network Operations required
+- International route changes: Full IOC leadership consensus
+
+PRE-CANCEL GUIDELINES:
+When to Consider Pre-Cancel:
+- Delay exceeds 4 hours AND no improvement forecast
+- Crew timeout unavoidable AND no reserve crew within 2 hours
+- Maintenance issue requires part not available same day
+- Weather at destination not forecast to improve
+
+Pre-Cancel Timing:
+- Domestic flights: Cancel minimum 3 hours before departure
+- International flights: Cancel minimum 5 hours before departure
+- Earlier cancellation = better rebooking options
+
+REACCOMMODATION PRIORITIES:
+1. Unaccompanied minors and passengers with disabilities
+2. Diamond/Platinum members with tight connections
+3. International connecting passengers
+4. Business class passengers
+5. General boarding priority order
+
+CUSTOMER RECOVERY GUIDELINES:
+- Meal vouchers: Delays >3 hours
+- Hotel accommodation: Delays requiring overnight stay
+- Rebooking on other carriers: When next Delta option >24 hours
+- Compensation: Per DOT and EU261 requirements
+
+COMMUNICATION REQUIREMENTS:
+- Gate announcement: Every 30 minutes during delay
+- App/SMS notification: Within 15 minutes of status change
+- Elite member direct contact: For delays >2 hours",2024-01-01
