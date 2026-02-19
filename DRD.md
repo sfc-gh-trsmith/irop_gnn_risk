@@ -1,4 +1,4 @@
-# Demo Requirements Document (DRD): Delta Network Disruption Intelligence Engine
+# Demo Requirements Document (DRD): Snowcore Airlines Network Disruption Intelligence Engine
 
 GITHUB REPO NAME: delta_network_disruption_intel  
 GITHUB REPO DESCRIPTION: Snowflake-native graph-based IROP risk and network impact engine for a hub-and-spoke airline, combining an ensemble of specialist ML models with a Heterogeneous GNN, Snowflake ML Feature Store, Snowpark Container Services, and Cortex-powered IOC copilot.
