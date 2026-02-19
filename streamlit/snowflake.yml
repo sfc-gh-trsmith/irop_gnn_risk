@@ -1,4 +1,4 @@
-definition_version: 2
+definition_version: 1
 streamlit:
   name: IROP_GNN_RISK_APP
   title: "IROP Network Intelligence"

@@ -2,10 +2,9 @@ name: irop_gnn_risk_app
 channels:
   - snowflake
 dependencies:
-  - python=3.11
-  - streamlit=1.35.0
+  - streamlit
   - snowflake-snowpark-python
-  - snowflake-ml-python
+  - snowflake-cortex
   - pandas
   - numpy
   - plotly

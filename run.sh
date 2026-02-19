@@ -14,15 +14,22 @@ success() { echo -e "${GREEN}[SUCCESS] $1${NC}"; }
 warn() { echo -e "${YELLOW}[WARN] $1${NC}"; }
 
 CONNECTION_NAME="demo"
+ENV_PREFIX=""
 PROJECT_PREFIX="IROP_GNN_RISK"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-DATABASE="${PROJECT_PREFIX}"
-WAREHOUSE="${PROJECT_PREFIX}_WH"
-ROLE="${PROJECT_PREFIX}_ROLE"
-STAGE="${PROJECT_PREFIX}_STAGE"
+if [ -n "$ENV_PREFIX" ]; then
+    FULL_PREFIX="${ENV_PREFIX}_${PROJECT_PREFIX}"
+else
+    FULL_PREFIX="${PROJECT_PREFIX}"
+fi
+
+DATABASE="${FULL_PREFIX}"
+WAREHOUSE="${FULL_PREFIX}_WH"
+ROLE="${FULL_PREFIX}_ROLE"
+STAGE="${FULL_PREFIX}_STAGE"
 
 while [[ $# -gt 1 ]]; do
     case $1 in
@@ -39,7 +46,7 @@ cmd_test() {
     echo ""
     
     info "Test 1: Checking database exists..."
-    snow sql $SNOW_CONN -q "SELECT DATABASE_NAME FROM INFORMATION_SCHEMA.DATABASES WHERE DATABASE_NAME = '${DATABASE}';" --format json | grep -q "${DATABASE}" && success "Database ${DATABASE} exists" || error_exit "Database ${DATABASE} not found"
+    snow sql $SNOW_CONN -q "SELECT DATABASE_NAME FROM SNOWFLAKE.INFORMATION_SCHEMA.DATABASES WHERE DATABASE_NAME = '${DATABASE}';" --format json | grep -q "${DATABASE}" && success "Database ${DATABASE} exists" || error_exit "Database ${DATABASE} not found"
     
     info "Test 2: Checking schemas..."
     for schema in RAW ATOMIC ML_PROCESSING IROP_MART; do
@@ -67,19 +74,21 @@ cmd_main() {
     info "Step 1: Creating and executing ML notebooks..."
     
     NOTEBOOKS=(
-        "01_delay_prediction"
-        "02_turn_success"
-        "03_crew_timeout"
-        "04_pnr_misconnect"
-        "05_aog_risk"
-        "06_hgnn_network_criticality"
+        "irco_01_delay_prediction"
+        "irco_02_turn_success"
+        "irco_03_crew_timeout"
+        "irco_04_pnr_misconnect"
+        "irco_05_aog_risk"
+        "irco_06_hgnn_network_criticality"
     )
     
     for nb in "${NOTEBOOKS[@]}"; do
         info "  Creating notebook: ${nb}..."
+        snow sql $SNOW_CONN -q "PUT file://notebooks/${nb}.ipynb @${DATABASE}.RAW.${STAGE}/notebooks/${nb}/ AUTO_COMPRESS=FALSE OVERWRITE=TRUE;" 2>/dev/null || true
         snow sql $SNOW_CONN -q "
             CREATE OR REPLACE NOTEBOOK ${DATABASE}.ML_PROCESSING.${nb}
-            FROM '@${DATABASE}.RAW.${STAGE}/notebooks/${nb}.ipynb'
+            FROM '@${DATABASE}.RAW.${STAGE}/notebooks/${nb}/'
+            MAIN_FILE = '${nb}.ipynb'
             QUERY_WAREHOUSE = '${WAREHOUSE}';
         " 2>/dev/null || warn "Could not create notebook ${nb}"
     done

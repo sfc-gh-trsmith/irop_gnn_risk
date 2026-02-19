@@ -1,4 +1,4 @@
-# Delta Network Disruption Intelligence Engine
+# Snowcore Airlines Network Disruption Intelligence Engine
 
 Snowflake-native graph-based IROP risk and network impact engine for a hub-and-spoke airline, combining an ensemble of specialist ML models with a Heterogeneous GNN, Snowflake ML, Snowpark Container Services, and Cortex-powered IOC copilot.
 

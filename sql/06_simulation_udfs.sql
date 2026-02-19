@@ -23,7 +23,7 @@ $$
             f.sched_arr_utc,
             DATEADD('minute', delay_minutes, f.sched_arr_utc) AS new_arr_utc
         FROM IROP_GNN_RISK.ATOMIC.FLIGHT_INSTANCE f
-        WHERE f.flight_key = SIMULATE_DELAY.flight_key
+        WHERE f.flight_key = flight_key
     ),
     affected_downstream AS (
         SELECT 
@@ -44,14 +44,14 @@ $$
         UNION ALL
         
         SELECT
-            SIMULATE_DELAY.flight_key AS affected_flight_key,
+            flight_key AS affected_flight_key,
             fr.flight_risk_score_0_100 AS original_risk_score,
             LEAST(100, fr.flight_risk_score_0_100 + (delay_minutes * 1.5)) AS new_risk_score,
             FLOOR(fr.misconnect_pax_at_risk * 0.3) AS delta_misconnect_pax,
             fr.revenue_at_risk_usd * 0.2 AS delta_revenue_usd,
             'Direct delay impact on source flight' AS impact_reason
         FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK fr
-        WHERE fr.flight_key = SIMULATE_DELAY.flight_key
+        WHERE fr.flight_key = flight_key
     )
     SELECT * FROM affected_downstream
 $$;
@@ -89,7 +89,7 @@ $$
                 ELSE 'No significant benefit from swap'
             END AS swap_benefit
         FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK fra
-        WHERE fra.flight_key = SIMULATE_TAIL_SWAP.flight_key_a
+        WHERE fra.flight_key = flight_key_a
         
         UNION ALL
         
@@ -101,7 +101,7 @@ $$
             frb.revenue_at_risk_usd * 0.1 AS delta_revenue_usd,
             'Potential increased risk from receiving swapped tail' AS swap_benefit
         FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK frb
-        WHERE frb.flight_key = SIMULATE_TAIL_SWAP.flight_key_b
+        WHERE frb.flight_key = flight_key_b
     )
     SELECT * FROM swap_analysis
 $$;
@@ -125,7 +125,7 @@ $$
             cd.fdp_remaining_minutes,
             cd.reserve_crew_eta_minutes
         FROM IROP_GNN_RISK.ATOMIC.CREW_DUTY_PERIOD cd
-        WHERE cd.duty_id = SIMULATE_RESERVE_CREW.duty_id
+        WHERE cd.duty_id = duty_id
     ),
     affected_flights AS (
         SELECT 

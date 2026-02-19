@@ -14,16 +14,23 @@ success() { echo -e "${GREEN}[SUCCESS] $1${NC}"; }
 warn() { echo -e "${YELLOW}[WARN] $1${NC}"; }
 
 CONNECTION_NAME="demo"
+ENV_PREFIX=""
 PROJECT_PREFIX="IROP_GNN_RISK"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-DATABASE="${PROJECT_PREFIX}"
-WAREHOUSE="${PROJECT_PREFIX}_WH"
-ROLE="${PROJECT_PREFIX}_ROLE"
-GPU_POOL="${PROJECT_PREFIX}_GPU_POOL"
-STAGE="${PROJECT_PREFIX}_STAGE"
+if [ -n "$ENV_PREFIX" ]; then
+    FULL_PREFIX="${ENV_PREFIX}_${PROJECT_PREFIX}"
+else
+    FULL_PREFIX="${PROJECT_PREFIX}"
+fi
+
+DATABASE="${FULL_PREFIX}"
+WAREHOUSE="${FULL_PREFIX}_WH"
+ROLE="${FULL_PREFIX}_ROLE"
+GPU_POOL="${FULL_PREFIX}_GPU_POOL"
+STAGE="${FULL_PREFIX}_STAGE"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -68,23 +75,17 @@ fi
 echo ""
 info "Starting cleanup..."
 
-info "Dropping Cortex Search Service..."
-snow sql $SNOW_CONN -q "DROP CORTEX SEARCH SERVICE IF EXISTS ${DATABASE}.IROP_MART.IROP_GNN_RISK_SEARCH_SVC;" 2>/dev/null || true
-
-info "Dropping Streamlit app..."
-snow sql $SNOW_CONN -q "DROP STREAMLIT IF EXISTS ${DATABASE}.IROP_MART.${PROJECT_PREFIX}_APP;" 2>/dev/null || true
-
-info "Dropping Compute Pool..."
+info "Step 1: Stopping and dropping Compute Pool..."
 snow sql $SNOW_CONN -q "ALTER COMPUTE POOL IF EXISTS ${GPU_POOL} STOP ALL;" 2>/dev/null || true
 snow sql $SNOW_CONN -q "DROP COMPUTE POOL IF EXISTS ${GPU_POOL};" 2>/dev/null || true
 
-info "Dropping Warehouse..."
+info "Step 2: Dropping Warehouse..."
 snow sql $SNOW_CONN -q "DROP WAREHOUSE IF EXISTS ${WAREHOUSE};" 2>/dev/null || true
 
-info "Dropping Database (cascades all schemas, tables, stages)..."
+info "Step 3: Dropping Database (cascades Cortex Search, Streamlit, tables, stages)..."
 snow sql $SNOW_CONN -q "DROP DATABASE IF EXISTS ${DATABASE};" 2>/dev/null || true
 
-info "Dropping Role..."
+info "Step 4: Dropping Role..."
 snow sql $SNOW_CONN -q "DROP ROLE IF EXISTS ${ROLE};" 2>/dev/null || true
 
 echo ""
