@@ -70,6 +70,32 @@ with col4:
     revenue_at_risk = float(result[0]['REV']) if result else 0
     st.metric("Revenue at Risk", f"${revenue_at_risk:,.0f}")
 
+if high_risk > 0:
+    risk_drivers = session.sql("""
+        SELECT 
+            SUM(CASE WHEN FDP_TIMEOUT_RISK_FLAG THEN 1 ELSE 0 END) as fdp_count,
+            SUM(CASE WHEN CURFEW_RISK_FLAG THEN 1 ELSE 0 END) as curfew_count,
+            SUM(CASE WHEN MEL_RISK_FLAG THEN 1 ELSE 0 END) as mel_count,
+            SUM(CASE WHEN TURN_RISK_FLAG THEN 1 ELSE 0 END) as turn_count
+        FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+        WHERE FLIGHT_DATE = CURRENT_DATE AND FLIGHT_RISK_SCORE_0_100 >= 70
+    """).collect()
+    
+    if risk_drivers:
+        drivers = []
+        if risk_drivers[0]['FDP_COUNT'] > 0:
+            drivers.append(f"crew legality ({risk_drivers[0]['FDP_COUNT']})")
+        if risk_drivers[0]['CURFEW_COUNT'] > 0:
+            drivers.append(f"curfew constraints ({risk_drivers[0]['CURFEW_COUNT']})")
+        if risk_drivers[0]['MEL_COUNT'] > 0:
+            drivers.append(f"MEL items ({risk_drivers[0]['MEL_COUNT']})")
+        if risk_drivers[0]['TURN_COUNT'] > 0:
+            drivers.append(f"turn risk ({risk_drivers[0]['TURN_COUNT']})")
+        
+        driver_text = ", ".join(drivers[:2]) if drivers else "multiple factors"
+        st.error(f"**Action Required:** {high_risk} flight(s) require immediate attention due to {driver_text}. "
+                 f"Total passengers at risk: {pax_at_risk:,}.")
+
 st.markdown("---")
 
 st.subheader("System Status")

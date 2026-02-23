@@ -153,9 +153,55 @@ with col2:
 
 st.markdown("---")
 
+st.subheader("Risk Trend (Last 8 Hours)")
+
+trend_data = session.sql("""
+    SELECT 
+        DATE_TRUNC('hour', SNAPSHOT_TS) as hour,
+        ROUND(AVG(FLIGHT_RISK_SCORE_0_100), 1) as avg_risk,
+        COUNT(*) as flight_count,
+        SUM(MISCONNECT_PAX_AT_RISK) as total_pax_at_risk
+    FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
+    WHERE FLIGHT_DATE = CURRENT_DATE
+    GROUP BY DATE_TRUNC('hour', SNAPSHOT_TS)
+    ORDER BY hour
+""").to_pandas()
+
+if not trend_data.empty:
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=trend_data['HOUR'],
+        y=trend_data['AVG_RISK'],
+        mode='lines+markers',
+        name='Avg Risk Score',
+        line=dict(color='#FF6B6B', width=3),
+        marker=dict(size=8)
+    ))
+    fig.update_layout(
+        height=250,
+        margin=dict(l=0, r=0, t=30, b=0),
+        xaxis_title='Time',
+        yaxis_title='Average Risk Score',
+        yaxis=dict(range=[0, 100])
+    )
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("No trend data available for today.")
+
+st.markdown("---")
+
+filter_col1, filter_col2 = st.columns([1, 3])
+with filter_col1:
+    hub_list = ['All Hubs'] + (hub_metrics['HUB'].tolist() if not hub_metrics.empty else [])
+    hub_filter = st.selectbox("Filter by Hub", hub_list, key="hub_filter")
+
+hub_where_clause = ""
+if hub_filter != 'All Hubs':
+    hub_where_clause = f"AND DEPARTURE_STATION = '{hub_filter}'"
+
 st.subheader("Top 10 Network-Critical Flights")
 
-top_flights = session.sql("""
+top_flights = session.sql(f"""
     SELECT 
         FLIGHT_NUMBER,
         DEPARTURE_STATION,
@@ -167,7 +213,7 @@ top_flights = session.sql("""
         ROUND(GNN_NETWORK_CRITICALITY, 1) as NETWORK_CRITICALITY,
         DOWNLINE_LEGS_AFFECTED_COUNT as DOWNLINE_AFFECTED
     FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
-    WHERE FLIGHT_DATE = CURRENT_DATE
+    WHERE FLIGHT_DATE = CURRENT_DATE {hub_where_clause}
     ORDER BY GNN_NETWORK_CRITICALITY DESC NULLS LAST
     LIMIT 10
 """).to_pandas()
@@ -187,7 +233,7 @@ st.markdown("---")
 
 st.subheader("Hub-to-Hub Risk Heatmap")
 
-hub_matrix = session.sql("""
+hub_matrix = session.sql(f"""
     SELECT 
         DEPARTURE_STATION as origin,
         ARRIVAL_STATION as destination,
@@ -195,6 +241,7 @@ hub_matrix = session.sql("""
     FROM IROP_GNN_RISK.IROP_MART.FLIGHT_RISK
     WHERE FLIGHT_DATE = CURRENT_DATE
         AND HUB_FLAG = TRUE
+        {hub_where_clause}
     GROUP BY DEPARTURE_STATION, ARRIVAL_STATION
 """).to_pandas()
 

@@ -4,7 +4,6 @@ channels:
 dependencies:
   - streamlit
   - snowflake-snowpark-python
-  - snowflake-cortex
   - pandas
   - numpy
   - plotly
